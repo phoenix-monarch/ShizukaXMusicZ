@@ -6,19 +6,17 @@ from pyrogram.types import InlineKeyboardMarkup
 
 import config
 from ShizukaXMusic import Carbon, YouTube, app
-from ShizukaXMusic.core.call import Shizuka
+from ShizukaXMusic.core.call import Yukki
 from ShizukaXMusic.misc import db
-from ShizukaXMusic.utils.database import (
-    add_active_chat,
-    add_active_video_chat,
-    is_active_chat,
-    is_video_allowed,
-    music_on,
-)
+from ShizukaXMusic.utils.database import (add_active_chat,
+                                       add_active_video_chat,
+                                       is_active_chat,
+                                       is_video_allowed, music_on)
 from ShizukaXMusic.utils.exceptions import AssistantErr
-from ShizukaXMusic.utils.inline.play import stream_markup, telegram_markup
+from ShizukaXMusic.utils.inline.play import (stream_markup,
+                                          telegram_markup)
 from ShizukaXMusic.utils.inline.playlist import close_markup
-from ShizukaXMusic.utils.pastebin import Shizukabin
+from ShizukaXMusic.utils.pastebin import Yukkibin
 from ShizukaXMusic.utils.stream.queue import put_queue, put_queue_index
 from ShizukaXMusic.utils.thumbnails import gen_thumb
 
@@ -42,7 +40,7 @@ async def stream(
         if not await is_video_allowed(chat_id):
             raise AssistantErr(_["play_7"])
     if forceplay:
-        await Shizuka.force_stop_stream(chat_id)
+        await Yukki.force_stop_stream(chat_id)
     if streamtype == "playlist":
         msg = f"{_['playlist_16']}\n\n"
         count = 0
@@ -56,7 +54,9 @@ async def stream(
                     duration_sec,
                     thumbnail,
                     vidid,
-                ) = await YouTube.details(search, False if spotify else True)
+                ) = await YouTube.details(
+                    search, False if spotify else True
+                )
             except:
                 continue
             if str(duration_min) == "None":
@@ -89,7 +89,7 @@ async def stream(
                     )
                 except:
                     raise AssistantErr(_["play_16"])
-                await Shizuka.join_call(
+                await Yukki.join_call(
                     chat_id, original_chat_id, file_path, video=status
                 )
                 await put_queue(
@@ -120,13 +120,15 @@ async def stream(
         if count == 0:
             return
         else:
-            link = await Shizukabin(msg)
+            link = await Yukkibin(msg)
             lines = msg.count("\n")
             if lines >= 17:
                 car = os.linesep.join(msg.split(os.linesep)[:17])
             else:
                 car = msg
-            carbon = await Carbon.generate(car, randint(100, 10000000))
+            carbon = await Carbon.generate(
+                car, randint(100, 10000000)
+            )
             upl = close_markup(_)
             return await app.send_photo(
                 original_chat_id,
@@ -161,12 +163,16 @@ async def stream(
             position = len(db.get(chat_id)) - 1
             await app.send_message(
                 original_chat_id,
-                _["queue_4"].format(position, title[:30], duration_min, user_name),
+                _["queue_4"].format(
+                    position, title[:30], duration_min, user_name
+                ),
             )
         else:
             if not forceplay:
                 db[chat_id] = []
-            await Shizuka.join_call(chat_id, original_chat_id, file_path, video=status)
+            await Yukki.join_call(
+                chat_id, original_chat_id, file_path, video=status
+            )
             await put_queue(
                 chat_id,
                 original_chat_id,
@@ -211,12 +217,16 @@ async def stream(
             position = len(db.get(chat_id)) - 1
             await app.send_message(
                 original_chat_id,
-                _["queue_4"].format(position, title[:30], duration_min, user_name),
+                _["queue_4"].format(
+                    position, title[:30], duration_min, user_name
+                ),
             )
         else:
             if not forceplay:
                 db[chat_id] = []
-            await Shizuka.join_call(chat_id, original_chat_id, file_path, video=None)
+            await Yukki.join_call(
+                chat_id, original_chat_id, file_path, video=None
+            )
             await put_queue(
                 chat_id,
                 original_chat_id,
@@ -233,7 +243,9 @@ async def stream(
             run = await app.send_photo(
                 original_chat_id,
                 photo=config.SOUNCLOUD_IMG_URL,
-                caption=_["stream_3"].format(title, duration_min, user_name),
+                caption=_["stream_3"].format(
+                    title, duration_min, user_name
+                ),
                 reply_markup=InlineKeyboardMarkup(button),
             )
             db[chat_id][0]["mystic"] = run
@@ -259,12 +271,16 @@ async def stream(
             position = len(db.get(chat_id)) - 1
             await app.send_message(
                 original_chat_id,
-                _["queue_4"].format(position, title[:30], duration_min, user_name),
+                _["queue_4"].format(
+                    position, title[:30], duration_min, user_name
+                ),
             )
         else:
             if not forceplay:
                 db[chat_id] = []
-            await Shizuka.join_call(chat_id, original_chat_id, file_path, video=status)
+            await Yukki.join_call(
+                chat_id, original_chat_id, file_path, video=status
+            )
             await put_queue(
                 chat_id,
                 original_chat_id,
@@ -282,8 +298,12 @@ async def stream(
             button = telegram_markup(_, chat_id)
             run = await app.send_photo(
                 original_chat_id,
-                photo=config.TELEGRAM_VIDEO_URL if video else config.TELEGRAM_AUDIO_URL,
-                caption=_["stream_4"].format(title, link, duration_min, user_name),
+                photo=config.TELEGRAM_VIDEO_URL
+                if video
+                else config.TELEGRAM_AUDIO_URL,
+                caption=_["stream_4"].format(
+                    title, link, duration_min, user_name
+                ),
                 reply_markup=InlineKeyboardMarkup(button),
             )
             db[chat_id][0]["mystic"] = run
@@ -309,7 +329,9 @@ async def stream(
             position = len(db.get(chat_id)) - 1
             await app.send_message(
                 original_chat_id,
-                _["queue_4"].format(position, title[:30], duration_min, user_name),
+                _["queue_4"].format(
+                    position, title[:30], duration_min, user_name
+                ),
             )
         else:
             if not forceplay:
@@ -317,7 +339,9 @@ async def stream(
             n, file_path = await YouTube.video(link)
             if n == 0:
                 raise AssistantErr(_["str_3"])
-            await Shizuka.join_call(chat_id, original_chat_id, file_path, video=status)
+            await Yukki.join_call(
+                chat_id, original_chat_id, file_path, video=status
+            )
             await put_queue(
                 chat_id,
                 original_chat_id,
@@ -360,12 +384,14 @@ async def stream(
             )
             position = len(db.get(chat_id)) - 1
             await mystic.edit_text(
-                _["queue_4"].format(position, title[:30], duration_min, user_name)
+                _["queue_4"].format(
+                    position, title[:30], duration_min, user_name
+                )
             )
         else:
             if not forceplay:
                 db[chat_id] = []
-            await Shizuka.join_call(
+            await Yukki.join_call(
                 chat_id,
                 original_chat_id,
                 link,
