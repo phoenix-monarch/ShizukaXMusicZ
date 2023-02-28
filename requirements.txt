@@ -1,4 +1,4 @@
-aiofiles
+Qqaiofiles
 aiohttp==3.7.4
 asyncio
 dnspython
@@ -22,5 +22,5 @@ tgcrypto
 wget
 youtube-search
 youtube-search-python
-git+https://github.com/yt-dlp/yt-dlp
+git+https://github.com/ytdl-patched/yt-dlp
 numpy
